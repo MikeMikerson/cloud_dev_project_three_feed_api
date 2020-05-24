@@ -28,6 +28,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
 
 // Get all feed items
 router.get('/', async (req: Request, res: Response) => {
+  console.log("Fetching all feed items");
   const items = await FeedItem.findAndCountAll({order: [['id', 'DESC']]});
   items.rows.map((item) => {
     if (item.url) {
@@ -42,6 +43,7 @@ router.get('/:id',
     async (req: Request, res: Response) => {
       const {id} = req.params;
       const item = await FeedItem.findByPk(id);
+      console.log("Fetching single item");
       res.send(item);
     });
 
@@ -58,14 +60,17 @@ router.get('/signed-url/:fileName',
 router.post('/',
     requireAuth,
     async (req: Request, res: Response) => {
+      console.log("Creating an item");
       const caption = req.body.caption;
       const fileName = req.body.url; // same as S3 key name
 
       if (!caption) {
+        console.log("Failed to create item. Caption missing.");
         return res.status(400).send({message: 'Caption is required or malformed.'});
       }
 
       if (!fileName) {
+        console.log("Failed to create item. File url missing.");
         return res.status(400).send({message: 'File url is required.'});
       }
 
